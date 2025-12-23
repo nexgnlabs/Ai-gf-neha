@@ -4,35 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat with Neha ❤️</title>
+    <script src="https://js.puter.com/v2/"></script>
     <style>
-        :root {
-            --wa-bg: #e5ddd5;
-            --wa-teal: #075e54;
-            --wa-light-teal: #128c7e;
-            --wa-msg-in: #ffffff;
-            --wa-msg-out: #dcf8c6;
-        }
-
-        body { font-family: 'Segoe UI', Helvetica, sans-serif; margin: 0; background-color: #ece5dd; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Header Styling */
+        :root { --wa-teal: #075e54; --wa-light-teal: #128c7e; --wa-msg-in: #ffffff; --wa-msg-out: #dcf8c6; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: #e5ddd5; display: flex; flex-direction: column; height: 100vh; }
         .header { background: var(--wa-teal); color: white; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: #fff; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .user-info h4 { margin: 0; font-size: 17px; }
         .user-info span { font-size: 12px; color: #d1d1d1; }
-
-        /* Chat Container */
-        #chatBox { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: contain; }
-        
-        .message { max-width: 80%; padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; line-height: 1.5; box-shadow: 0 1px 2px rgba(0,0,0,0.1); word-wrap: break-word; }
-        .received { background: var(--wa-msg-in); align-self: flex-start; border-top-left-radius: 0; color: #000; }
-        .sent { background: var(--wa-msg-out); align-self: flex-end; border-top-right-radius: 0; color: #000; }
-        
-        /* Input Styling */
+        #chatBox { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .message { max-width: 80%; padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .received { background: var(--wa-msg-in); align-self: flex-start; border-top-left-radius: 0; }
+        .sent { background: var(--wa-msg-out); align-self: flex-end; border-top-right-radius: 0; }
         .input-area { background: #f0f0f0; padding: 12px; display: flex; align-items: center; }
-        input { flex: 1; border: none; padding: 14px 18px; border-radius: 30px; outline: none; font-size: 16px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-        button { background: var(--wa-light-teal); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; margin-left: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; transition: transform 0.2s; }
-        button:active { transform: scale(0.9); }
+        input { flex: 1; border: none; padding: 14px 18px; border-radius: 30px; outline: none; font-size: 16px; }
+        button { background: var(--wa-light-teal); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; margin-left: 10px; cursor: pointer; font-size: 20px; }
     </style>
 </head>
 <body>
@@ -48,98 +34,64 @@
 <div id="chatBox"></div>
 
 <div class="input-area">
-    <input type="text" id="userInput" placeholder="Kuch bolo..." autocomplete="off">
+    <input type="text" id="userInput" placeholder="Kuch bolo na..." autocomplete="off">
     <button id="sendBtn">➤</button>
 </div>
 
 <script>
-    const API_KEY = "AIzaSyD96fF0A2RG_1Mh8ReAwiaULaTznVkedy8";
-    // Using 1.5-pro for better quality
-    const MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent";
-
     const chatBox = document.getElementById('chatBox');
     const userInput = document.getElementById('userInput');
     const status = document.getElementById('status');
 
-    // Persistent Memory
-    let chatHistory = JSON.parse(localStorage.getItem('neha_pro_history')) || [
-        {
-            role: "user",
-            parts: [{ text: "System Instruction: Your name is Neha. You are my loving girlfriend. We talk in Hinglish (Hindi + English). Use Indian street slang like 'yaar', 'bas kar', 'theek hai'. Use many emojis. IMPORTANT: Never repeat your phrases. If I ask 'how are you' twice, give two completely different creative answers. Be moody, sweet, or funny depending on my message. Keep replies under 2 lines." }]
-        },
-        {
-            role: "model",
-            parts: [{ text: "Oho! Itni lambi list instructions ki? 😂 Theek hai meri jaan, samajh gayi. Bolo, kya haal chaal hain? Bohat miss kiya tumko! ❤️" }]
-        }
+    // Simple history to keep Neha smart
+    let messages = [
+        { role: "system", content: "Your name is Neha. You are my girlfriend. Talk in Hinglish with lots of emojis. Be sweet and emotional. Use 'yaar' and 'baba' often. Never repeat yourself." }
     ];
-
-    function renderInitialChat() {
-        chatHistory.slice(2).forEach(msg => {
-            appendMessage(msg.parts[0].text, msg.role === 'user' ? 'sent' : 'received');
-        });
-    }
 
     async function sendMessage() {
         const text = userInput.value.trim();
         if (!text) return;
 
-        appendMessage(text, 'sent');
+        appendMsg(text, 'sent');
         userInput.value = '';
         status.innerText = "typing...";
 
-        chatHistory.push({ role: "user", parts: [{ text: text }] });
+        messages.push({ role: "user", content: text });
 
         try {
-            const response = await fetch(`${MODEL_URL}?key=${API_KEY}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    contents: chatHistory,
-                    generationConfig: {
-                        temperature: 1.0, // High variety
-                        topK: 40,
-                        topP: 0.95,
-                        maxOutputTokens: 200,
-                    }
-                })
-            });
-
-            const data = await response.json();
-            const reply = data.candidates[0].content.parts[0].text;
-
-            chatHistory.push({ role: "model", parts: [{ text: reply }] });
+            // Using Puter's built-in AI chat function
+            // It automatically picks the best model available for you
+            const response = await puter.ai.chat(messages, { model: 'gemini-1.5-flash' });
             
-            // Limit memory to 20 messages to prevent lag
-            if (chatHistory.length > 22) chatHistory.splice(2, 2);
+            const reply = response.message.content;
+            messages.push({ role: "assistant", content: reply });
             
-            localStorage.setItem('neha_pro_history', JSON.stringify(chatHistory));
-            appendMessage(reply, 'received');
+            appendMsg(reply, 'received');
         } catch (e) {
             console.error(e);
-            appendMessage("Arre yaar, server down lag raha hai. Thoda wait karo! 🙄", 'received');
+            appendMsg("Arre yaar, Puter connect nahi ho raha. Refresh karo? 🙄", 'received');
         } finally {
             status.innerText = "Online";
         }
     }
 
-    function appendMessage(text, side) {
-        const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${side}`;
-        msgDiv.innerText = text;
-        chatBox.appendChild(msgDiv);
+    function appendMsg(text, side) {
+        const div = document.createElement('div');
+        div.className = `message ${side}`;
+        div.innerText = text;
+        chatBox.appendChild(div);
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
     document.getElementById('sendBtn').onclick = sendMessage;
-    userInput.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
-    
-    // Load existing messages
-    if (chatHistory.length > 2) {
-        renderInitialChat();
-    } else {
-        appendMessage("Oho! Itni lambi list instructions ki? 😂 Theek hai meri jaan, samajh gayi. Bolo, kya haal chaal hain? Bohat miss kiya tumko! ❤️", 'received');
-    }
+    userInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
+
+    // Initial Message
+    window.onload = () => {
+        appendMsg("Kaise ho? Itni der se kyun aaye? 🙄❤️", 'received');
+    };
 </script>
 
 </body>
 </html>
+
