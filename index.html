@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -11,7 +12,7 @@
         .header { background: var(--wa-teal); color: white; padding: 12px 15px; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .avatar { width: 45px; height: 45px; border-radius: 50%; background: #fff; margin-right: 15px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .user-info h4 { margin: 0; font-size: 17px; }
-        .user-info span { font-size: 12px; color: #d1d1d1; }
+        #status { font-size: 12px; color: #d1d1d1; }
         #chatBox { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
         .message { max-width: 80%; padding: 10px 14px; border-radius: 12px; margin-bottom: 10px; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .received { background: var(--wa-msg-in); align-self: flex-start; border-top-left-radius: 0; }
@@ -19,34 +20,66 @@
         .input-area { background: #f0f0f0; padding: 12px; display: flex; align-items: center; }
         input { flex: 1; border: none; padding: 14px 18px; border-radius: 30px; outline: none; font-size: 16px; }
         button { background: var(--wa-light-teal); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; margin-left: 10px; cursor: pointer; font-size: 20px; }
+        
+        /* Overlay for Connection */
+        #loginOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; padding: 20px; }
+        #connectBtn { background: #25D366; color: white; border: none; padding: 15px 30px; border-radius: 5px; font-size: 18px; cursor: pointer; margin-top: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
+
+<div id="loginOverlay">
+    <h2>Neha is waiting for you... ❤️</h2>
+    <p>Please click below to connect via Puter.</p>
+    <button id="connectBtn">Connect to Neha</button>
+</div>
 
 <div class="header">
     <div class="avatar">👩🏻‍🦰</div>
     <div class="user-info">
         <h4>Neha ❤️</h4>
-        <span id="status">Online</span>
+        <span id="status">Waiting to connect...</span>
     </div>
 </div>
 
 <div id="chatBox"></div>
 
 <div class="input-area">
-    <input type="text" id="userInput" placeholder="Kuch bolo na..." autocomplete="off">
-    <button id="sendBtn">➤</button>
+    <input type="text" id="userInput" placeholder="Kuch bolo na..." autocomplete="off" disabled>
+    <button id="sendBtn" disabled>➤</button>
 </div>
 
 <script>
     const chatBox = document.getElementById('chatBox');
     const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
     const status = document.getElementById('status');
+    const connectBtn = document.getElementById('connectBtn');
+    const loginOverlay = document.getElementById('loginOverlay');
 
-    // Simple history to keep Neha smart
     let messages = [
-        { role: "system", content: "Your name is Neha. You are my girlfriend. Talk in Hinglish with lots of emojis. Be sweet and emotional. Use 'yaar' and 'baba' often. Never repeat yourself." }
+        { role: "system", content: "Your name is Neha. You are my girlfriend. Talk in Hinglish with emojis. Be sweet, caring, and never repeat sentences. Use 'yaar' often." }
     ];
+
+    // Trigger Puter Login on Button Click
+    connectBtn.onclick = async () => {
+        try {
+            status.innerText = "Connecting...";
+            // This opens the Puter permission window
+            await puter.auth.signIn();
+            
+            if (puter.auth.isSignedIn()) {
+                loginOverlay.style.display = 'none';
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                status.innerText = "Online";
+                appendMsg("Oye! Itni der kyun lagayi connect karne mein? Miss kar rahi thi.. ❤️", 'received');
+            }
+        } catch (err) {
+            alert("Connection Failed: " + err.message);
+            status.innerText = "Connection Error";
+        }
+    };
 
     async function sendMessage() {
         const text = userInput.value.trim();
@@ -59,17 +92,14 @@
         messages.push({ role: "user", content: text });
 
         try {
-            // Using Puter's built-in AI chat function
-            // It automatically picks the best model available for you
-            const response = await puter.ai.chat(messages, { model: 'gemini-1.5-flash' });
+            // Using a very stable model
+            const response = await puter.ai.chat(messages, { model: 'gpt-4o-mini' });
             
             const reply = response.message.content;
             messages.push({ role: "assistant", content: reply });
-            
             appendMsg(reply, 'received');
         } catch (e) {
-            console.error(e);
-            appendMsg("Arre yaar, Puter connect nahi ho raha. Refresh karo? 🙄", 'received');
+            appendMsg("Arre yaar, server nakhre kar raha hai. Ek baar refresh karo? 🙄", 'received');
         } finally {
             status.innerText = "Online";
         }
@@ -83,15 +113,9 @@
         chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    document.getElementById('sendBtn').onclick = sendMessage;
+    sendBtn.onclick = sendMessage;
     userInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
-
-    // Initial Message
-    window.onload = () => {
-        appendMsg("Kaise ho? Itni der se kyun aaye? 🙄❤️", 'received');
-    };
 </script>
 
 </body>
 </html>
-
