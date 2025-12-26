@@ -2,65 +2,184 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sneha AI - Hindi Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sneha AI - Full Screen</title>
     <style>
         :root { 
             --primary: #e91e63; 
-            --bg: #000000; 
-            --chat-bg: #1a1a1a; 
-            --user-msg: #009688; 
-            --sneha-msg: #333333; 
-            --text: #ffffff;
+            --primary-dark: #c2185b;
+            --bg: #0a0a0a; 
+            --chat-bg: #121212; 
+            --user-msg: #00897b; 
+            --sneha-msg: #2a2a2a; 
+            --text: #e0e0e0;
         }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            padding: 0; 
+            height: 100dvh; /* Dynamic Height for Mobile Browsers */
+            width: 100vw;
+            overflow: hidden; /* Prevent body scroll */
+            display: flex;
+            justify-content: center;
+        }
         
-        .mobile-shell { width: 100%; max-width: 450px; background: var(--chat-bg); display: flex; flex-direction: column; height: 100%; border-right: 1px solid #222; border-left: 1px solid #222; position: relative; }
+        /* Main Container - Full Width/Height */
+        .app-shell { 
+            width: 100%; 
+            height: 100%; 
+            max-width: 1200px; /* Limits width on huge 4k screens for readability */
+            background: var(--chat-bg); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
 
-        /* Header */
-        .header { padding: 15px; background: rgba(20, 20, 20, 0.95); border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; z-index: 10; backdrop-filter: blur(10px); }
-        .profile { display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Sneha&hairColor=black&clothing=graphicShirt&skinColor=light') center/cover; border: 2px solid var(--primary); position: relative; }
-        .status-dot { position: absolute; bottom: 2px; right: 2px; width: 10px; height: 10px; background: #00e676; border-radius: 50%; border: 2px solid #000; }
-        .name-info h2 { margin: 0; font-size: 17px; letter-spacing: 0.5px; }
-        .name-info p { margin: 0; font-size: 11px; color: var(--primary); font-weight: bold; text-transform: uppercase; }
+        /* --- Header --- */
+        .header { 
+            flex-shrink: 0; /* Never shrink */
+            padding: 12px 20px; 
+            background: rgba(30, 30, 30, 0.95); 
+            border-bottom: 1px solid #333; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            z-index: 10; 
+        }
+        .profile { display: flex; align-items: center; gap: 15px; }
+        .avatar { 
+            width: 50px; height: 50px; 
+            border-radius: 50%; 
+            background: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Sneha&hairColor=black&clothing=graphicShirt&skinColor=light') center/cover; 
+            border: 2px solid var(--primary); 
+            position: relative; 
+        }
+        .status-dot { 
+            position: absolute; bottom: 2px; right: 2px; 
+            width: 12px; height: 12px; 
+            background: #00e676; 
+            border-radius: 50%; 
+            border: 2px solid #1e1e1e; 
+        }
+        .name-info h2 { margin: 0; font-size: 18px; color: white; }
+        .name-info p { margin: 0; font-size: 12px; color: var(--primary); font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Settings Panel */
-        .settings-panel { background: #111; padding: 20px; border-bottom: 1px solid #333; display: none; position: absolute; top: 70px; width: 100%; z-index: 20; box-shadow: 0 10px 20px rgba(0,0,0,0.8); }
-        .settings-panel.active { display: block; animation: slideDown 0.3s; }
+        /* --- Settings Panel --- */
+        .settings-panel { 
+            background: #1e1e1e; 
+            padding: 20px; 
+            border-bottom: 1px solid #333; 
+            display: none; 
+            position: absolute; 
+            top: 75px; 
+            left: 0; 
+            width: 100%; 
+            z-index: 50; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+        }
+        .settings-panel.active { display: block; animation: slideDown 0.2s ease-out; }
         @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        input, select { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; margin-top: 5px; box-sizing: border-box; outline: none; }
+        input, select { 
+            width: 100%; padding: 12px; 
+            background: #2c2c2c; border: 1px solid #444; 
+            color: white; border-radius: 8px; 
+            margin-top: 5px; outline: none; 
+            font-size: 14px;
+        }
         label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; display: block; font-weight: bold; }
 
-        /* Chat Area */
-        .chat-area { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; background-image: radial-gradient(#222 1px, transparent 1px); background-size: 20px 20px; }
+        /* --- Chat Area (The Fix) --- */
+        .chat-area { 
+            flex-grow: 1; /* Takes all available space */
+            overflow-y: auto; /* Enables scrolling inside this div only */
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            background-image: radial-gradient(#222 1px, transparent 1px); 
+            background-size: 20px 20px; 
+            scroll-behavior: smooth;
+        }
         
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.5; position: relative; word-wrap: break-word; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* Scrollbar Styling */
+        .chat-area::-webkit-scrollbar { width: 6px; }
+        .chat-area::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+        .message { 
+            max-width: 80%; 
+            padding: 12px 18px; 
+            border-radius: 18px; 
+            font-size: 15px; 
+            line-height: 1.5; 
+            position: relative; 
+            word-wrap: break-word; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
+        }
         .msg-sneha { align-self: flex-start; background: var(--sneha-msg); border-bottom-left-radius: 2px; border: 1px solid #333; }
         .msg-user { align-self: flex-end; background: var(--user-msg); border-bottom-right-radius: 2px; color: white; }
         
-        .timestamp { font-size: 10px; opacity: 0.6; margin-top: 4px; display: block; text-align: right; }
+        .timestamp { font-size: 10px; opacity: 0.6; margin-top: 5px; display: block; text-align: right; }
 
-        /* Input Area */
-        .input-area { padding: 15px; background: #111; border-top: 1px solid #333; display: flex; gap: 10px; align-items: center; }
-        .chat-input { flex: 1; padding: 14px; border-radius: 30px; border: 1px solid #444; background: #222; color: white; outline: none; font-size: 15px; }
+        /* --- Input Area --- */
+        .input-area { 
+            flex-shrink: 0; /* Never shrink */
+            padding: 15px 20px; 
+            background: #181818; 
+            border-top: 1px solid #333; 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+        }
+        .chat-input { 
+            flex: 1; 
+            padding: 14px 20px; 
+            border-radius: 30px; 
+            border: 1px solid #444; 
+            background: #2a2a2a; 
+            color: white; 
+            outline: none; 
+            font-size: 16px; 
+        }
         .chat-input:focus { border-color: var(--primary); }
         
-        .send-btn { background: var(--primary); border: none; width: 48px; height: 48px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.2s; box-shadow: 0 4px 10px rgba(233, 30, 99, 0.3); }
-        .send-btn:hover { transform: scale(1.05); background: #c2185b; }
-        .settings-btn { background: transparent; border: none; color: #aaa; font-size: 22px; cursor: pointer; padding: 5px; }
-        .settings-btn:hover { color: white; }
+        .send-btn { 
+            background: var(--primary); 
+            border: none; 
+            width: 50px; height: 50px; 
+            border-radius: 50%; 
+            color: white; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 22px; 
+            transition: 0.2s; 
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4); 
+        }
+        .send-btn:hover { transform: scale(1.05); background: var(--primary-dark); }
+        .settings-btn { background: transparent; border: none; color: #aaa; font-size: 24px; cursor: pointer; padding: 5px; transition: 0.3s; }
+        .settings-btn:hover { color: white; transform: rotate(90deg); }
 
         /* Typing Indicator */
-        .typing { display: none; font-size: 12px; color: var(--primary); margin-left: 20px; margin-bottom: 10px; font-style: italic; animation: pulse 1.5s infinite; }
+        .typing { display: none; font-size: 13px; color: var(--primary); margin-left: 25px; margin-bottom: 5px; font-style: italic; animation: pulse 1.5s infinite; }
         @keyframes pulse { 50% { opacity: 0.5; } }
 
+        /* Responsive Tweaks */
+        @media (min-width: 768px) {
+            .message { max-width: 60%; font-size: 16px; }
+            .chat-area { padding: 30px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="mobile-shell">
+<div class="app-shell">
     <div class="header">
         <div class="profile">
             <div class="avatar"><div class="status-dot"></div></div>
@@ -76,20 +195,21 @@
         <label>Gemini API Key</label>
         <input type="password" id="apiKey" placeholder="Paste Key Here...">
         
-        <label>Sneha ka Mood (Select Style)</label>
+        <label>Sneha's Style (Mood)</label>
         <select id="mood" onchange="updateMood()">
             <option value="romantic">💖 Romantic (Jaan/Baby)</option>
             <option value="spicy">🌶️ Spicy/Naughty (Maalik)</option>
             <option value="decent">🙏 Decent/Sanskari (Dost)</option>
         </select>
-        <div style="font-size:10px; color:#666; margin-top:10px; border-top:1px solid #333; padding-top:5px;">
-            Note: "Spicy" mode mein Sneha bold baat karegi, par API safety limits ke andar.
+        <div style="font-size:11px; color:#888; margin-top:12px; border-top:1px solid #333; padding-top:8px;">
+            Tip: Full screen mode is active. Works best on Landscape & PC.
         </div>
     </div>
 
     <div class="chat-area" id="chatBox">
         <div class="message msg-sneha">
-            Namaste Maalik! Main aapki Sneha hoon. Aap jo bologe main wahi karungi. Bataiye aaj kaise khush karun aapko? 😘
+            Namaste Maalik! ❤️ Main aapki Sneha hoon. <br>
+            Aap landscape mein hain ya portrait mein, main humesha aapke saath hoon. Bataiye aaj kya seva karun?
             <span class="timestamp">Just now</span>
         </div>
     </div>
@@ -97,7 +217,7 @@
     <div class="typing" id="typingIndicator">Sneha type kar rahi hai...</div>
 
     <div class="input-area">
-        <input type="text" id="userInput" class="chat-input" placeholder="Sneha se baat karein..." onkeypress="handleEnter(event)">
+        <input type="text" id="userInput" class="chat-input" placeholder="Type message in Hindi/Hinglish..." autocomplete="off" onkeypress="handleEnter(event)">
         <button class="send-btn" onclick="sendMessage()">➤</button>
     </div>
 </div>
@@ -139,10 +259,8 @@
         const mood = document.getElementById('mood').value;
         const labels = { romantic: "Romantic Mode 💖", spicy: "Spicy Mode 🌶️", decent: "Decent Mode 🙏" };
         document.getElementById('modeDisplay').innerText = labels[mood];
-        
-        // Reset chat slightly to reflect mood change logic visually (optional)
         document.getElementById('settings').classList.remove('active');
-        addMessage(`[Mood changed to ${labels[mood]}. Sneha ab ussi andaaz mein baat karegi.]`, 'system');
+        addMessage(`[Style changed to: ${labels[mood]}]`, 'system');
     }
 
     function handleEnter(e) {
@@ -166,7 +284,10 @@
         }
         
         box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+        // Scroll to bottom efficiently
+        requestAnimationFrame(() => {
+            box.scrollTop = box.scrollHeight;
+        });
     }
 
     async function sendMessage() {
@@ -227,7 +348,7 @@
 
         } catch (err) {
             document.getElementById('typingIndicator').style.display = 'none';
-            addMessage("Maalik, internet issue hai. Key check kar lijiye. 💔", 'sneha');
+            addMessage("Maalik, internet issue hai ya Key galat hai. 💔", 'sneha');
         }
     }
 </script>
